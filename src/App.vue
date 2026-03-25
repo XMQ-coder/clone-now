@@ -1,7 +1,7 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Index from '@/views/index.vue'
 </script>
 
 <template>
-  <HelloWorld />
+  <Index />
 </template>
