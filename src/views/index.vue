@@ -34,6 +34,9 @@ const handleSubmit = async () => {
         <div class="nav">工具</div>
         <input type="text" placeholder="请输入..." v-model="inputValue" class="inp">
         <button class="btn" @click="handleSubmit">提交</button>
+        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+            仅用于学习和技术研究，请遵守平台服务条款，不得用于商业或违规用途。
+        </div>
         <div v-if="loading">解析中...</div>
         <div v-if="error">{{ error }}</div>
         <div v-if="videos.length">

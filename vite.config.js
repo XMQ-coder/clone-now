@@ -20,15 +20,7 @@ function linkParserPlugin() {
             res.end(JSON.stringify({ error: 'missing url' }))
             return
           }
-          const uaMobileSafari = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Mobile/15E148 Safari/604.1'
-          const uaWeChat = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile MicroMessenger'
-          const resp = await fetch(target, {
-            redirect: 'follow',
-            headers: {
-              'User-Agent': uaMobileSafari,
-              'Accept-Language': 'zh-CN,zh;q=0.9',
-            },
-          })
+          const resp = await fetch(target, { redirect: 'follow' })
           const finalUrl = resp.url
           const html = await resp.text()
           let images = []
@@ -41,12 +33,7 @@ function linkParserPlugin() {
               html.match(/itemId[\"']?:[\"']?(\d+)/)
             const awemeId = m && m[1]
             if (awemeId) {
-              const apiResp = await fetch(`https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=${awemeId}`, {
-                headers: {
-                  'User-Agent': uaMobileSafari,
-                  Referer: 'https://www.iesdouyin.com/',
-                },
-              })
+              const apiResp = await fetch(`https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=${awemeId}`)
               if (apiResp.ok) {
                 const data = await apiResp.json()
                 const item = data?.item_list?.[0]
@@ -64,13 +51,7 @@ function linkParserPlugin() {
             const noteIdMatch = finalUrl.match(/explore\/([0-9a-zA-Z]+)/)
             const noteId = noteIdMatch && noteIdMatch[1]
             if (noteId) {
-              const apiResp = await fetch(`https://www.xiaohongshu.com/fe_api/burdock/weixin/v2/page_data/notes/${noteId}`, {
-                headers: {
-                  'User-Agent': uaWeChat,
-                  Referer: 'https://www.xiaohongshu.com',
-                  'Accept-Language': 'zh-CN,zh;q=0.9',
-                },
-              })
+              const apiResp = await fetch(`https://www.xiaohongshu.com/fe_api/burdock/weixin/v2/page_data/notes/${noteId}`)
               if (apiResp.ok) {
                 const json = await apiResp.json()
                 const note = json?.data?.note
