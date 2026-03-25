@@ -6,7 +6,7 @@ const router_base = [
         path: '/',
         name: 'Home',
         meta: {
-            title: "媒体工具",
+            title: "媒体解析工具",
         },
         component: () =>
             import('@/views/Index.vue')
