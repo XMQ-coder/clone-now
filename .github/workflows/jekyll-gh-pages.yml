@@ -18,6 +18,13 @@ jobs:
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
+      - name: 设置 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
 
       - name: 安装依赖并打包
         run: |
@@ -28,6 +35,3 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
-
-      - name: 部署到 GitHub Pages
-        uses: actions/deploy-pages@v4
