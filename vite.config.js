@@ -84,7 +84,7 @@ function linkParserPlugin() {
 
 export default defineConfig({
   plugins: [vue(), linkParserPlugin()],
-  base: './',
+  base: '/clone-now/',
   server: {
     host: true,
     watch: {
