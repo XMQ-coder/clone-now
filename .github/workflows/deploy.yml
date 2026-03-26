@@ -1,37 +1,44 @@
 name: 部署到 GitHub Pages
 
-# 代码推送到 main 分支时自动触发
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
-# 部署权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 拉取代码
+      - name: Checkout
         uses: actions/checkout@v4
-      - name: 设置 Node
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 20
           cache: 'npm'
-      - name: 配置 Pages
-        uses: actions/configure-pages@v5
 
-      - name: 安装依赖并打包
-        run: |
-          npm install
-          npm run build  # 生成 dist 文件夹
+      - name: 安装依赖
+        run: npm install
 
-      - name: 上传静态文件
+      - name: 打包构建
+        run: npm run build
+
+      - name: 上传产物
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: dist
+
+      - name: 部署到 Pages
+        uses: actions/deploy-pages@v4
