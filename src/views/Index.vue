@@ -1,89 +1,90 @@
-<script setup>
-import { ref } from 'vue'
+<template>
+    <div class="container">
+        <h2>视频无水印解析</h2>
 
-const inputValue = ref('')
-const images = ref([])
-const videos = ref([])
-const loading = ref(false)
-const error = ref('')
-const handleSubmit = async () => {
-    error.value = ''
-    images.value = []
-    videos.value = []
-    const url = (inputValue.value || '').trim()
-    if (!url) return
-    loading.value = true
+        <input v-model="videoUrl" placeholder="粘贴抖音 / 小红书链接" @keyup.enter="parseVideo" />
+        <button @click="parseVideo" :disabled="loading">
+            {{ loading ? "解析中..." : "开始解析" }}
+        </button>
+
+        <video v-if="videoUrlResult" :src="videoUrlResult" controls
+            style="width:100%;margin-top:20px;border-radius:10px"></video>
+
+        <button v-if="videoUrlResult" @click="downloadVideo" style="background:#07c160;margin-top:10px">
+            下载视频
+        </button>
+    </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+
+const videoUrl = ref("");
+const loading = ref(false);
+const videoUrlResult = ref("");
+
+// 👉 唯一支持 CORS、无跨域、网页可直接调用
+async function parseVideo() {
+    if (!videoUrl.value) {
+        alert("请输入视频链接");
+        return;
+    }
+
+    loading.value = true;
+    videoUrlResult.value = "";
+
     try {
-        const resp = await fetch(`/api/parse?url=${encodeURIComponent(url)}`)
-        const data = await resp.json()
-        images.value = Array.isArray(data.images) ? data.images : []
-        videos.value = Array.isArray(data.videos) ? data.videos : []
-        if (!images.value.length && !videos.value.length) {
-            error.value = '未解析到媒体内容'
+        const resp = await fetch(
+            "https://vx-cors.deno.dev/api?url=" + encodeURIComponent(videoUrl.value)
+        );
+        const data = await resp.json();
+
+        if (data.url) {
+            videoUrlResult.value = data.url;
+            alert("解析成功！");
+        } else {
+            alert("解析失败：" + (data.msg || "无法解析"));
         }
     } catch (e) {
-        error.value = '解析失败'
+        alert("网络异常，请重试");
     } finally {
-        loading.value = false
+        loading.value = false;
     }
+}
+
+// 下载视频
+function downloadVideo() {
+    const a = document.createElement("a");
+    a.href = videoUrlResult.value;
+    a.download = "video.mp4";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 </script>
 
-<template>
-    <div class="tool">
-        <div class="nav">工具</div>
-        <input type="text" placeholder="请输入..." v-model="inputValue" class="inp">
-        <button class="btn" @click="handleSubmit">提交</button>
-        <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            仅用于学习和技术研究，请遵守平台服务条款，不得用于商业或违规用途。
-        </div>
-        <div v-if="loading">解析中...</div>
-        <div v-if="error">{{ error }}</div>
-        <div v-if="videos.length">
-            <div>视频</div>
-            <div>
-                <video v-for="(v, i) in videos" :key="'v' + i" :src="v" controls
-                    style="width: 100%; max-width: 480px; margin-top: 10px;"></video>
-            </div>
-        </div>
-        <div v-if="images.length" style="margin-top: 10px;">
-            <div>图片</div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;">
-                <img v-for="(img, i) in images" :key="'i' + i" :src="img" style="width: 100%; object-fit: cover;">
-            </div>
-        </div>
-    </div>
-</template>
 <style scoped>
-    .tool {
+    .container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    input {
         width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
 
-        .nav {
-            width: 100%;
-            height: 40px;
-            background: #f5f5f5;
-            text-align: center;
-            line-height: 40px;
-        }
-
-        .inp {
-            width: 80%;
-            height: 40px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            width: 60%;
-            height: 40px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #007aff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
     }
 </style>
